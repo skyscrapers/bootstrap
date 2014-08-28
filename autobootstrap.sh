@@ -106,6 +106,21 @@ function setupapt {
   fi
 }
 
+# clean-up apt
+# we only use it to install a puppet agent
+# the rest (maintenance, versioning) is up to your puppet infra
+function cleanapt {
+  if [ -f "/etc/apt/sources.list.d/autobootstrap.list" ]; then
+    echo -n "* Removing apt conf used by autobootstrap"
+    rm /etc/apt/sources.list.d/autobootstrap.list
+    echo " - Done"
+
+    echo -n "* Executing apt-get update"
+    apt-get update
+    echo " - Done"
+  fi
+}
+
 # install and setup puppet
 function installpuppet {
   echo -n "* Attempting to install puppet"
@@ -162,4 +177,5 @@ sethosts
 settimezone
 setupapt
 installpuppet
+cleanapt
 post
