@@ -41,6 +41,8 @@ echo "This script will attempt to setup some basic configuration on a new Ubuntu
 echo "apt, hostname, hosts file, timezone and Puppet agent."
 echo ""
 
+/usr/bin/logger -t autobootstrap "STARTING autobootstrap.sh"
+
 ##### PARAMS and VARS
 
 PACKAGEREPO=
@@ -85,6 +87,7 @@ function sethostname {
   hostname "$HOSTNAME"
   echo "$HOSTNAME" > /etc/hostname
   echo " - Done"
+  /usr/bin/logger -t autobootstrap "hostname set to $HOSTNAME"
 }
 
 # set the hosts file
@@ -92,6 +95,7 @@ function sethosts {
   echo -n "* Adding host to hosts file"
   echo "127.0.0.1     $FQDN   $HOSTNAME" >> /etc/hosts
   echo " - Done"
+  /usr/bin/logger -t autobootstrap "updated /etc/hosts with $HOSTNAME and $FQDN"
 }
 
 # setup apt
@@ -99,10 +103,12 @@ function setupapt {
   if [ ! -z "$PACKAGEREPO" ]; then
     echo "deb $PACKAGEREPO" >> /etc/apt/sources.list.d/autobootstrap.list
     echo " - Done"
+    /usr/bin/logger -t autobootstrap "added custom apt repo to install puppet from"
 
     echo -n "* Executing apt-get update"
     apt-get update
     echo " - Done"
+    /usr/bin/logger -t autobootstrap "ran apt-get update"
   fi
 }
 
@@ -114,10 +120,12 @@ function cleanapt {
     echo -n "* Removing apt conf used by autobootstrap"
     rm /etc/apt/sources.list.d/autobootstrap.list
     echo " - Done"
+    /usr/bin/logger -t autobootstrap "removed custom apt repo"
 
     echo -n "* Executing apt-get update"
     apt-get update
     echo " - Done"
+    /usr/bin/logger -t autobootstrap "ran apt-get update"
   fi
 }
 
@@ -126,12 +134,14 @@ function installpuppet {
   echo -n "* Attempting to install puppet"
   apt-get install -y --force-yes puppet
   echo " - Done"
+  /usr/bin/logger -t autobootstrap "installed puppet"
 
   echo -n "* Set Puppet to start on boot"
   if [ -f "/etc/default/puppet" ]; then
     sed -i 's/no/yes/g' /etc/default/puppet
   fi
   echo " - Done"
+  /usr/bin/logger -t autobootstrap "puppet agent configured to run at boot"
 
   echo -n "* Specify puppetmaster server \"$PUPPETMASTER\" and certname in Puppet agent config"
   echo "" >> /etc/puppet/puppet.conf
@@ -140,10 +150,12 @@ function installpuppet {
   echo "certname=$FQDN" >> /etc/puppet/puppet.conf
   echo "report=true" >> /etc/puppet/puppet.conf
   echo " - Done"
+  /usr/bin/logger -t autobootstrap "setup puppet agent to use $PUPPETMASTER as puppetmaster"
 
   echo -n "* Start Puppet agent"
   /etc/init.d/puppet restart > /dev/null
   echo " - Done"
+  /usr/bin/logger -t autobootstrap "started puppet agent"
 }
 
 # post setup stuff
@@ -151,6 +163,7 @@ function post {
   echo ""
   echo "All DONE"
   echo ""
+  /usr/bin/logger -t autobootstrap "autobootstrap.sh ENDED"
   exit 0
 }
 
@@ -163,6 +176,7 @@ function settimezone {
     ln -s /usr/share/zoneinfo/$TIMEZONE /etc/localtime
     date
     echo " - Done"
+    /usr/bin/logger -t autobootstrap "set time zone to $TIMEZONE"
   fi
 }
 
