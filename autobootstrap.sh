@@ -104,12 +104,11 @@ function setupapt {
     echo "deb $PACKAGEREPO" >> /etc/apt/sources.list.d/autobootstrap.list
     echo " - Done"
     /usr/bin/logger -t autobootstrap "added custom apt repo to install puppet from"
-
-    echo -n "* Executing apt-get update"
-    apt-get update
-    echo " - Done"
-    /usr/bin/logger -t autobootstrap "ran apt-get update"
   fi
+  echo -n "* Executing apt-get update"
+  apt-get update
+  echo " - Done"
+  /usr/bin/logger -t autobootstrap "ran apt-get update"
 }
 
 # clean-up apt
