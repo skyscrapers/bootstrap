@@ -151,6 +151,9 @@ function installpuppet {
   echo " - Done"
   /usr/bin/logger -t autobootstrap "setup puppet agent to use $PUPPETMASTER as puppetmaster"
 
+  echo -n "* Enable puppet"
+  puppet agent --enable
+
   echo -n "* Start Puppet agent"
   /etc/init.d/puppet restart > /dev/null
   echo " - Done"
