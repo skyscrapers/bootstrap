@@ -1,27 +1,8 @@
 #!/bin/bash
-
-##### LICENSE
-
-# Copyright (c) Skyscrapers (iLibris bvba) 2014 - http://skyscrape.rs
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 ##### USAGE
 
 # Options
 #
-# -r "<value>" : repo for puppet install if you want a specific version. Defaults to local apt sources. Example: -r "https://apt.puppetlabs.com/ trusty main"
 # -p <value>   : puppetmaster address. Defaults to localhost.
 # -t <value>   : timezone. For example -t "Europe/Brussels". Default = leave it be.
 # -h <value>   : hostname of the system. Example: -h test-webserver. Default = output of /bin/hostname.
@@ -29,7 +10,7 @@
 #
 # Manual or as AWS EC2 UserData
 #
-# /bin/bash <(/usr/bin/wget -qO- http(s)://<location>/autobootstrap.sh) -r "<package repo URL and release name and section name>" -p <puppetmaster URI> -t <timezone> -h <hostname> -f <fqdn>
+# /bin/bash <(/usr/bin/wget -qO- http(s)://<location>/autobootstrap.sh) -p <puppetmaster URI> -t <timezone> -h <hostname> -f <fqdn>
 
 ##### BEGIN SCRIPT
 
@@ -38,24 +19,20 @@ echo "AUTO BOOTSTRAP script"
 echo "---------------------"
 echo ""
 echo "This script will attempt to setup some basic configuration on a new Ubuntu system."
-echo "apt, hostname, hosts file, timezone and Puppet agent."
+echo "hostname, hosts file, timezone and Puppet agent."
 echo ""
 
 /usr/bin/logger -t autobootstrap "STARTING autobootstrap.sh"
 
 ##### PARAMS and VARS
 
-PACKAGEREPO=
 PUPPETMASTER="localhost"
-TIMEZONE=
+TIMEZONE="UTC"
 HOSTNAME=`/bin/hostname`
 FQDN=`/bin/hostname -f`
 
 while getopts :r:p:t:h:f: opt; do
   case $opt in
-  r)
-    PACKAGEREPO=$OPTARG
-    ;;
   p)
     PUPPETMASTER=$OPTARG
     ;;
@@ -100,38 +77,24 @@ function sethosts {
 
 # setup apt
 function setupapt {
-  if [ ! -z "$PACKAGEREPO" ]; then
-    echo "deb $PACKAGEREPO" >> /etc/apt/sources.list.d/autobootstrap.list
-    echo " - Done"
-    /usr/bin/logger -t autobootstrap "added custom apt repo to install puppet from"
-  fi
+  eval `cat /etc/lsb-release`
+
+  wget -qO - https://apt.puppetlabs.com/pubkey.gpg | apt-key add -
+  /usr/bin/logger -t autobootstrap "added puppetlabs apt key"
+
+  echo "deb https://apt.puppetlabs.com/ $DISTRIB_CODENAME main" >> /etc/apt/sources.list.d/puppet.list
+  /usr/bin/logger -t autobootstrap "added puppetlabs apt repo"
+
   echo -n "* Executing apt-get update"
   apt-get update
   echo " - Done"
   /usr/bin/logger -t autobootstrap "ran apt-get update"
 }
 
-# clean-up apt
-# we only use it to install a puppet agent
-# the rest (maintenance, versioning) is up to your puppet infra
-function cleanapt {
-  if [ -f "/etc/apt/sources.list.d/autobootstrap.list" ]; then
-    echo -n "* Removing apt conf used by autobootstrap"
-    rm /etc/apt/sources.list.d/autobootstrap.list
-    echo " - Done"
-    /usr/bin/logger -t autobootstrap "removed custom apt repo"
-
-    echo -n "* Executing apt-get update"
-    apt-get update
-    echo " - Done"
-    /usr/bin/logger -t autobootstrap "ran apt-get update"
-  fi
-}
-
 # install and setup puppet
 function installpuppet {
   echo -n "* Attempting to install puppet"
-  apt-get install -y --force-yes puppet
+  apt-get install -y --force-yes puppet=3.8.*
   echo " - Done"
   /usr/bin/logger -t autobootstrap "installed puppet"
 
@@ -193,5 +156,4 @@ sethosts
 settimezone
 setupapt
 installpuppet
-cleanapt
 post
