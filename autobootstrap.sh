@@ -89,6 +89,12 @@ function setupapt {
   apt-get update
   echo " - Done"
   /usr/bin/logger -t autobootstrap "ran apt-get update"
+
+  echo -n "* Executing apt-get dist-upgrade"
+  DEBIAN_FRONTEND=noninteractive
+  apt-get -o Dpkg::Options::="--force-confnew" --force-yes -fuy dist-upgrade
+  echo " - Done"
+  /usr/bin/logger -t autobootstrap "ran apt-get dist-upgrade"
 }
 
 # install and setup puppet
