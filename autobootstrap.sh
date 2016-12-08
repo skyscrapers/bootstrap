@@ -89,6 +89,11 @@ function setupapt {
   apt-get update
   echo " - Done"
   /usr/bin/logger -t autobootstrap "ran apt-get update"
+
+  echo -n "* Executing apt-get dist-upgrade"
+  apt-get dist-upgrade
+  echo " - Done"
+  /usr/bin/logger -t autobootstrap "ran apt-get dist-upgrade"
 }
 
 # install and setup puppet
