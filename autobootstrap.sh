@@ -31,9 +31,8 @@ TIMEZONE="UTC"
 HOSTNAME=`/bin/hostname`
 FQDN=`/bin/hostname -f`
 ENVIRONMENT=""
-PUPPET_VERSION="3"
 
-while getopts :r:p:t:h:f:e:v: opt; do
+while getopts :r:p:t:h:f:e: opt; do
   case $opt in
   p)
     PUPPETMASTER=$OPTARG
@@ -49,9 +48,6 @@ while getopts :r:p:t:h:f:e:v: opt; do
     ;;
   e)
     ENVIRONMENT=$OPTARG
-    ;;
-  v)
-    PUPPET_VERSION=$OPTARG
     ;;
   :)
     echo "Option -$OPTARG requires an argument." >&2
