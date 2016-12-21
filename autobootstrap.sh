@@ -30,9 +30,10 @@ PUPPETMASTER="localhost"
 TIMEZONE="UTC"
 HOSTNAME=`/bin/hostname`
 FQDN=`/bin/hostname -f`
-ENVIRONMENT=`production`
+ENVIRONMENT=""
+PUPPET_VERSION="3"
 
-while getopts :r:p:t:h:f:e: opt; do
+while getopts :r:p:t:h:f:e:v: opt; do
   case $opt in
   p)
     PUPPETMASTER=$OPTARG
@@ -48,6 +49,9 @@ while getopts :r:p:t:h:f:e: opt; do
     ;;
   e)
     ENVIRONMENT=$OPTARG
+    ;;
+  v)
+    PUPPET_VERSION=$OPTARG
     ;;
   :)
     echo "Option -$OPTARG requires an argument." >&2
@@ -117,7 +121,7 @@ function installpuppet {
   echo "server=$PUPPETMASTER" >> /etc/puppetlabs/puppet/puppet.conf
   echo "certname=$FQDN" >> /etc/puppetlabs/puppet/puppet.conf
   echo "report=true" >> /etc/puppetlabs/puppet/puppet.conf
-  echo "environment=$ENVIRONMENT" >> /etc/puppetlabs/puppet/puppet.conf
+  [[ ! -z $ENVIRONMENT ]] && echo "environment=$ENVIRONMENT" >> /etc/puppetlabs/puppet/puppet.conf
   echo " - Done"
   /usr/bin/logger -t autobootstrap "setup puppet agent to use $PUPPETMASTER as puppetmaster"
 
