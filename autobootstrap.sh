@@ -30,8 +30,9 @@ PUPPETMASTER="localhost"
 TIMEZONE="UTC"
 HOSTNAME=`/bin/hostname`
 FQDN=`/bin/hostname -f`
+ENVIRONMENT=`production`
 
-while getopts :r:p:t:h:f: opt; do
+while getopts :r:p:t:h:f:e: opt; do
   case $opt in
   p)
     PUPPETMASTER=$OPTARG
@@ -44,6 +45,9 @@ while getopts :r:p:t:h:f: opt; do
     ;;
   f)
     FQDN=$OPTARG
+    ;;
+  e)
+    ENVIRONMENT=$OPTARG
     ;;
   :)
     echo "Option -$OPTARG requires an argument." >&2
@@ -82,7 +86,7 @@ function setupapt {
   wget -qO - https://apt.puppetlabs.com/pubkey.gpg | apt-key add -
   /usr/bin/logger -t autobootstrap "added puppetlabs apt key"
 
-  echo "deb https://apt.puppetlabs.com/ $DISTRIB_CODENAME main" >> /etc/apt/sources.list.d/puppet.list
+  echo "deb https://apt.puppetlabs.com/ $DISTRIB_CODENAME PC1" >> /etc/apt/sources.list.d/puppet.list
   /usr/bin/logger -t autobootstrap "added puppetlabs apt repo"
 
   echo -n "* Executing apt-get update"
@@ -100,23 +104,20 @@ function setupapt {
 # install and setup puppet
 function installpuppet {
   echo -n "* Attempting to install puppet"
-  apt-get install -y --force-yes puppet=3.8.*
+  apt-get install -y --force-yes puppet-agent=1.8.*
   echo " - Done"
   /usr/bin/logger -t autobootstrap "installed puppet"
 
-  echo -n "* Set Puppet to start on boot"
-  if [ -f "/etc/default/puppet" ]; then
-    sed -i 's/no/yes/g' /etc/default/puppet
-  fi
   echo " - Done"
   /usr/bin/logger -t autobootstrap "puppet agent configured to run at boot"
 
   echo -n "* Specify puppetmaster server \"$PUPPETMASTER\" and certname in Puppet agent config"
-  echo "" >> /etc/puppet/puppet.conf
-  echo "[agent]" >> /etc/puppet/puppet.conf
-  echo "server=$PUPPETMASTER" >> /etc/puppet/puppet.conf
-  echo "certname=$FQDN" >> /etc/puppet/puppet.conf
-  echo "report=true" >> /etc/puppet/puppet.conf
+  echo "" >> /etc/puppetlabs/puppet/puppet.conf
+  echo "[agent]" >> /etc/puppetlabs/puppet/puppet.conf
+  echo "server=$PUPPETMASTER" >> /etc/puppetlabs/puppet/puppet.conf
+  echo "certname=$FQDN" >> /etc/puppetlabs/puppet/puppet.conf
+  echo "report=true" >> /etc/puppetlabs/puppet/puppet.conf
+  echo "environment=$ENVIRONMENT" >> /etc/puppetlabs/puppet/puppet.conf
   echo " - Done"
   /usr/bin/logger -t autobootstrap "setup puppet agent to use $PUPPETMASTER as puppetmaster"
 
