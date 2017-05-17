@@ -96,6 +96,9 @@ function setupapt {
 
   echo -n "* Executing apt-get dist-upgrade"
   DEBIAN_FRONTEND=noninteractive
+  unset UCF_FORCE_CONFFOLD
+  export UCF_FORCE_CONFFNEW=YES
+  ucf --purge /boot/grub/menu.lst
   apt-get -o Dpkg::Options::="--force-confnew" --force-yes -fuy dist-upgrade
   echo " - Done"
   /usr/bin/logger -t autobootstrap "ran apt-get dist-upgrade"
