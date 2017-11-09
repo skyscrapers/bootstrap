@@ -14,10 +14,11 @@ Options
 - -t &lt;value&gt;   : timezone. For example -t "Europe/Brussels". Default = leave it be.
 - -h &lt;value&gt;   : hostname of the system. Example: -h test-webserver. Default = output of /bin/hostname.
 - -f &lt;value&gt;   : fqdn of the system. Example: -f webserver.test.domain.com. Default = output of /bin/hostname -f.
+- -e &lt;value&gt;   : environment of the system. Example: -e development. If empty it will not add the environment to the puppet config.
 
 Usage
 -----
 Manual or as AWS EC2 UserData
 
     #!/bin/bash
-    /bin/bash <(/usr/bin/wget -qO- https://raw.githubusercontent.com/skyscrapers/bootstrap/master/autobootstrap.sh) -r "<package repo URL and release name and section name>" -p <puppetmaster URI> -t <timezone> -h <hostname> -f <fqdn>
+    /bin/bash <(/usr/bin/wget -qO- https://raw.githubusercontent.com/skyscrapers/bootstrap/master/autobootstrap.sh) -r "<package repo URL and release name and section name>" -p <puppetmaster URI> -t <timezone> -h <hostname> -f <fqdn> -e <environment>
