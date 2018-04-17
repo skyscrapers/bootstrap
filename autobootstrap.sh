@@ -84,8 +84,8 @@ function setupapt {
   eval `cat /etc/lsb-release`
 
   cd /tmp
-  wget -q https://apt.puppetlabs.com/puppetlabs-release-pc1-${DISTRIB_CODENAME}.deb
-  dpkg -i /tmp/puppetlabs-release-pc1-${DISTRIB_CODENAME}.deb
+  wget -q https://apt.puppetlabs.com/puppet5-release-${DISTRIB_CODENAME}.deb
+  dpkg -i /tmp/puppet5-release-${DISTRIB_CODENAME}.deb
   /usr/bin/logger -t autobootstrap "added puppetlabs apt repo and key"
 
   echo -n "* Executing apt-get update"
@@ -106,7 +106,7 @@ function setupapt {
 # install and setup puppet
 function installpuppet {
   echo -n "* Attempting to install puppet"
-  apt-get install -y --force-yes puppet-agent=1.10.*
+  apt-get install -y --force-yes puppet-agent=5.5.*
   echo " - Done"
   /usr/bin/logger -t autobootstrap "installed puppet"
 
@@ -119,6 +119,22 @@ function installpuppet {
   [[ ! -z $ENVIRONMENT ]] && echo "environment=$ENVIRONMENT" >> /etc/puppetlabs/puppet/puppet.conf
   echo " - Done"
   /usr/bin/logger -t autobootstrap "setup puppet agent to use $PUPPETMASTER as puppetmaster"
+
+  echo -n "* Disabling ec2_userdata fact"
+  mkdir -p /etc/facter/facts.d/
+  cat > /etc/facter/facts.d/ec2_userdata.sh <<EOL
+#!/bin/bash
+## THIS FILE IS PUPPETIZED, CHANGES WILL BE OVERWRITTEN EVENTUALLY
+## CONTACT A SYSADMIN TO CHANGE SETTINGS IN HERE
+
+# Overwrite the ec2_userdata fact due to it containing gzipped data
+# https://tickets.puppetlabs.com/browse/FACT-1024
+# https://tickets.puppetlabs.com/browse/FACT-1354
+echo 'ec2_userdata='
+EOL
+  /opt/puppetlabs/bin/facter --no-cache ec2_userdata
+  echo " - Done"
+  /usr/bin/logger -t autobootstrap "disabled ec2_userdata fact"
 
   echo -n "* Enable puppet"
   /opt/puppetlabs/bin/puppet agent --enable

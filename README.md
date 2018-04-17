@@ -2,10 +2,9 @@ bootstrap
 =========
 About
 -----
-This script will attempt to setup some basic configuration on a new Ubuntu system and provision it with the latest puppet 4 version.. After that puppet should do the rest of the configuration.
+This script will attempt to setup some basic configuration on a new Ubuntu system and provision it with the latest puppet 5.5 version.. After that puppet should do the rest of the configuration.
 
-
-Tested on 12.04 and 14.04. Things like apt, hostname, hosts file, timezone and Puppet agent. After running, the only thing to do, is open up firewall rules and/or accept the puppet agent certificate (if applicable).
+Tested on Ubuntu 14.04 and 16.04 (12.04 is unsupported). Things like apt, hostname, hosts file, timezone and Puppet agent. After running, the only thing to do, is open up firewall rules and/or accept the puppet agent certificate (if applicable).
 
 Options
 -------
