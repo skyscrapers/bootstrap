@@ -132,6 +132,7 @@ function installpuppet {
 # https://tickets.puppetlabs.com/browse/FACT-1354
 echo 'ec2_userdata='
 EOL
+  chmod a+x /etc/facter/facts.d/ec2_userdata.sh
   /opt/puppetlabs/bin/facter --no-cache ec2_userdata
   echo " - Done"
   /usr/bin/logger -t autobootstrap "disabled ec2_userdata fact"
