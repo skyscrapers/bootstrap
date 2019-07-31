@@ -79,6 +79,13 @@ function sethosts {
   /usr/bin/logger -t autobootstrap "updated /etc/hosts with $HOSTNAME and $FQDN"
 }
 
+function enablePreserveHostname {
+  echo -n "* Enabling preserve_hostname"
+  sed -i '/preserve_hostname/s/false/true/' /etc/cloud/cloud.cfg
+  echo " - Done"
+  /usr/bin/logger -t autobootstrap "enabled preserve_hostname in /etc/cloud/cloud.cfg"
+}
+
 # setup apt
 function setupapt {
   eval `cat /etc/lsb-release`
@@ -176,6 +183,7 @@ echo ""
 
 sethostname
 sethosts
+enablePreserveHostname
 settimezone
 setupapt
 installpuppet
